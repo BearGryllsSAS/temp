@@ -1,11 +1,13 @@
 #include "chat_conn.h"
 #include "../server.h"
 
+#include <vector>
 #include <mysql/mysql.h>
 #include <fstream>
 
 locker m_lock;
 map<string, string> users;
+vector<int> onlineUsers;    //记录在线用户，存放的是cfd
 
 //初始化连接
 void chat_conn::initmysql_result(connection_pool *connPool)
