@@ -385,7 +385,7 @@ void chat_conn::register_id()
         }
         this->get_uid();
         sprintf(this->buf, "注册成功, 你的账号uid: %s  用户名为%s, 现在重新返回登陆界面 \n\n", this->usr_id,this->usr_name);
-        chat_conn:::m_user_count++;
+  
         // strcpy(Users[chat_conn:::m_user_count].usr_id, this->usr_id);          
         // strcpy(Users[chat_conn:::m_user_count].usr_name, this->usr_name);
         // strcpy(Users[chat_conn:::m_user_count].usr_key, this->usr_key);
