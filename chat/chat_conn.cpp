@@ -414,10 +414,7 @@ void chat_conn::get_uid()
     sprintf(str, "%05d", chat_conn:::m_user_count + 1);   
     strcpy(this->usr_id, str); 
 
-    //将注册的用户信息加入users中
-    users[this->user_id] = {this->user_name, this_user_key};
-
-    //将注册的用户信息加入数据库中
+    //将注册的用户信息加入users中 将注册的用户信息加入数据库中
     char *sql_insert = (char *)malloc(sizeof(char) * 200);
     strcpy(sql_insert, "INSERT INTO user(userid, username, passwd) VALUES(");
     strcat(sql_insert, "'");
@@ -430,7 +427,7 @@ void chat_conn::get_uid()
    
     m_lock.lock();
     int res = mysql_query(mysql, sql_insert);
-    users.insert(pair<string, string>(name, password));
+    users[this->user_id] = {this->user_name, this_user_key};
     m_lock.unlock();
 }
 
