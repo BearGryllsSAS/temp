@@ -242,7 +242,11 @@ void chat_conn::login_menu()
         strcpy(this->uusr_id, "00000");                           // 所有匿名用户的账号为00000
         // 加入到聊天回调然后监听 
         this->log_step = 3;       // 表示为已登录状态
-        list_push(cfd);         // 加入当前的在线列表
+
+        // list_push(cfd);         // 加入当前的在线列表
+        onlineUsers.emplace_back(this->fd);
+        chat_conn:::m_user_count++;        // 在线人数加一
+
         sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
         this->len = strlen(this->buf);
         char s[] = "----------------------epoll聊天室测试版--------------------\n";
