@@ -9,6 +9,9 @@ locker m_lock;
 map<string, string> users;
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
 
+int chat_conn::m_user_count = 0;
+int chat_conn::m_epollfd = -1;
+
 //初始化连接
 void chat_conn::initmysql_result(connection_pool *connPool)
 {
@@ -87,9 +90,6 @@ void modfd(int epollfd, int fd, int ev, int TRIGMode)
 
     epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event);
 }
-
-int chat_conn::m_user_count = 0;
-int chat_conn::m_epollfd = -1;
 
 //关闭连接，关闭一个连接，客户总量减一
 void chat_conn::close_conn(bool real_close)
