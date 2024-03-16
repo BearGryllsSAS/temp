@@ -2,13 +2,14 @@
 #include "../server.h"
 
 #include <vector>
+#include <unordered_set>
 #include <mysql/mysql.h>
 #include <fstream>
 
 locker m_lock;
 map<string, string> users;
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
-vector<int> onlineUsersId   //记录在线用户，存放的是用户id。方便login函数判断
+unordered_set<int> onlineUsersId   //记录在线用户，存放的是用户id。方便login函数判断
 
 int chat_conn::m_user_count = 0;
 int chat_conn::m_epollfd = -1;
