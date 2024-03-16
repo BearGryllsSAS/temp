@@ -414,7 +414,10 @@ void chat_conn::get_uid()
     sprintf(str, "%05d", chat_conn:::m_user_count + 1);   
     strcpy(this->usr_id, str); 
 
-    //将注册的用户信息加入users和mysql数据库中
+    //将注册的用户信息加入users中
+    users[this->user_id] = {this->user_name, this_user_key};
+
+    //将注册的用户信息加入数据库中
 }
 
 // 写事件 ---> 向当前在线用户发送信息
