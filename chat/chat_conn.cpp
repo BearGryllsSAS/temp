@@ -7,7 +7,7 @@
 #include <fstream>
 
 locker m_lock;
-map<string, string> users;
+map<string, pair<string, string>> users;  //通过id映射用户名和密码
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
 unordered_set<int> onlineUsersId   //记录在线用户，存放的是用户id。方便login函数判断
 
