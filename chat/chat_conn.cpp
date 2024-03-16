@@ -383,12 +383,13 @@ void chat_conn::register_id()
             write(this->fd, this->buf, strlen(this->buf));
             return;
         }
-        this->get_uid(ev);
+        this->get_uid();
         sprintf(this->buf, "注册成功, 你的账号uid: %s  用户名为%s, 现在重新返回登陆界面 \n\n", this->usr_id,this->usr_name);
         chat_conn:::m_user_count++;
-        strcpy(Users[chat_conn:::m_user_count].usr_id, this->usr_id);          //=======还没定义在线用户列表
-        strcpy(Users[chat_conn:::m_user_count].usr_name, this->usr_name);
-        strcpy(Users[chat_conn:::m_user_count].usr_key, this->usr_key);
+        // strcpy(Users[chat_conn:::m_user_count].usr_id, this->usr_id);          
+        // strcpy(Users[chat_conn:::m_user_count].usr_name, this->usr_name);
+        // strcpy(Users[chat_conn:::m_user_count].usr_key, this->usr_key);
+       
         this->log_step = 0;
         write(this->fd, this->buf, strlen(this->buf));
         write(this->fd, ms1, sizeof ms1);
@@ -407,21 +408,13 @@ void chat_conn::register_id()
 }
 
 // 获取一个未注册的uid
-void chat_conn::get_uid(myevent_s *ev)
+void chat_conn::get_uid()
 {
     char str[10];
-    user_msg *p = &ev->um;
     sprintf(str, "%05d", chat_conn:::m_user_count + 1);   
     strcpy(this->usr_id, str); 
 
-    FILE *fp = fopen("/home/dd/01Linux/user_msg", "a+");        // 下面涉及到mysql 先不管
-    if(fp == NULL) 
-    {
-        write(ev->fd, "error\n", 6);
-        fprintf(stderr, "get_uid open file error\n");
-    }
-    fprintf(fp,"%s %s %s\n", p->usr_id, p->usr_name, p->usr_key);     // 将新注册的用户信息写入保存用户信息的文件
-    fflush(fp);         // 刷新缓冲区, 将内容写入到文件中
+    //将注册的用户信息加入users和mysql数据库中
 }
 
 // 写事件 ---> 向当前在线用户发送信息
