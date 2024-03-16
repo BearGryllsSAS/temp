@@ -322,9 +322,9 @@ void chat_conn::login()
     {
         int id = atoi(this->usr_id);
         strcpy(this->usr_key, buf);
-        if(!strcmp(this->buf, users[id]))
+        if(!strcmp(this->buf, users[id].second))
         {
-            strcpy(this->usr_name, Users[id].usr_name);  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
+            strcpy(this->usr_name, users[id].first);  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
             list_push(cfd);                                 // 将当前的cfd添加进在线列表中
             Users[id].st = 1;
             sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
