@@ -100,6 +100,16 @@ void chat_conn::close_conn(bool real_close)
     {
         printf("close %d\n", m_sockfd);
         removefd(m_epollfd, m_sockfd);
+
+        this->status = 0;        //是否在监听红黑树上
+
+        // 原来的打印错误信息的逻辑，以后更改为日志操作
+        // char str[BUFSIZ];
+        // event_del(g_efd, ev);
+        // close(cfd);
+        // sprintf(str, "the client fd: %d is close\n", ev->fd);
+        // write(STDOUT_FILENO, str, strlen(str));
+        
         m_sockfd = -1;
         m_user_count--;
     }
@@ -211,30 +221,12 @@ bool chat_conn::read_once()
 }
 
 // 出错处理函数
+// 以后这些都会做一个封装，做成动态库
 void sys_error(const char *str) 
 {
     perror(str);
-    exit(1);
+    exit;
 }
-
-// 将事件从监听红黑树上摘除
-void chat_conn::event_del()
-{
-    this->status = 0;
-    epoll_ctl(this->m_epollfd, EPOLL_CTL_DEL, this->fd, NULL);
-}
-
-// 关闭与客户端通信的文件描述符
-void chat_conn::close_cfd(int cfd, myevent_s *ev)
-{
-    char str[BUFSIZ];
-    event_del(g_efd, ev);
-    close(cfd);
-    sprintf(str, "the client fd: %d is close\n", ev->fd);
-    write(STDOUT_FILENO, str, strlen(str));
-    return;
-}
-
 
 
 //==========================================================================================//
