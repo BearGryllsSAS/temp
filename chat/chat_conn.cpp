@@ -58,6 +58,8 @@ void addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
 {
     epoll_event event;
     event.data.fd = fd;
+    
+    this->status = 1        //是否在监听红黑树上
 
     if (1 == TRIGMode)
         event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
@@ -213,24 +215,6 @@ void sys_error(const char *str)
 {
     perror(str);
     exit(1);
-}
-
-// 重新设置监听事件
-void chat_conn::event_set(call_back fun)
-{
-    this->fun = fun;
-}
-
-// 添加监听事件到树上
-void chat_conn::event_add(int epfd, myevent_s *ev)
-{
-    struct epoll_event tep;
-    tep.data.ptr = ev;
-    tep.events = ev->events;
-    if(epoll_ctl(epfd, EPOLL_CTL_ADD, ev->fd, &tep) == -1)
-        printf("fail: epoll_ctl add fd: %d, events is %d\n",ev->fd, ev->events);
-    else
-        ev->status = 1, ev->last_active_time = time(NULL);
 }
 
 // 将事件从监听红黑树上摘除
