@@ -417,18 +417,16 @@ void chat_conn::get_uid(myevent_s *ev)
 // 写事件 ---> 向当前在线用户发送信息
 void chat_conn::lcb_write()
 {
-    char str[BUFSIZ];
-    myevent_s *ev = (myevent_s*)arg;
     if(this->len <= 0) 
     {
         logout(this->fd, ev);
         close_cfd(this->fd, ev);
         return;
     }
-    for(int i = r[0]; i != 1; i = r[i])             // 遍历当前的在线链表, 向在线用户发送
+    for(const auto& onlinefd : onlineUsers)             // 遍历当前的在线链表, 向在线用户发送
     {
-        if(online_fd[i] == cfd) continue;           // 发送数据给服务器的客户端一方并不需要发送
-        write(online_fd[i], this->buf, this->len);
+        if(onlinefd == this->fd) continue;           // 发送数据给服务器的客户端一方并不需要发送
+        write(onlinefd, this->buf, this->len);
     }
 
     if(this->log_step == 3) write(this->fd, "\n>>>", 4);   // 界面的优化,与主要逻辑无关 
