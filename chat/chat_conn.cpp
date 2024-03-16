@@ -1,4 +1,5 @@
 #include "chat_conn.h"
+#include "../server.h"
 
 #include <mysql/mysql.h>
 #include <fstream>
