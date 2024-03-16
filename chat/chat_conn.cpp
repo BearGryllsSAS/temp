@@ -335,7 +335,7 @@ void chat_conn::login()
             //在线人数加一
             chat_conn:::m_user_count++;
             
-sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
+            sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
             this->len = strlen(this->buf);
             char s[] = "----------------------epoll聊天室测试版--------------------\n";
             write(this->fd, s, sizeof s);
