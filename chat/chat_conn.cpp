@@ -441,12 +441,6 @@ void chat_conn::get_uid()
 // 写事件 ---> 向当前在线用户发送信息
 void chat_conn::lcb_write()
 {
-    if(this->len <= 0) 
-    {
-        logout(this->fd, ev);
-        close_cfd(this->fd, ev);
-        return;
-    }
     for(const auto& onlinefd : onlineUsers)             // 遍历当前的在线链表, 向在线用户发送
     {
         if(onlinefd == this->fd) continue;           // 发送数据给服务器的客户端一方并不需要发送
@@ -470,14 +464,6 @@ void chat_conn::lcb_write()
 void chat_conn::cb_read()
 {
     char str[BUFSIZ], str2[1024];
-    // int ret = read(cfd, str, sizeof str);
-    if(this->len <= 0)    //这种判断应该是在读数据中做的
-    {
-        logout(this->fd, ev);
-        close_cfd(this->fd, ev);
-        return;
-    }
-    //str[ret] = '\0';
 
     strcpy(str, this->buf); 
     
