@@ -48,6 +48,7 @@ void chat_conn::initmysql_result(connection_pool *connPool)
         string temp2(row[1]);
         string temp3(row[2]);
         users[temp1] = {temp2, temp3};
+    }
 }
 
 //对文件描述符设置非阻塞
