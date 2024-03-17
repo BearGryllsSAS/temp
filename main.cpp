@@ -2,6 +2,8 @@
 
 int main(int argc, char *argv[])
 {
+    //后面可以把数据库信息，服务器信息也放入配置文件中，让用户可以自定义输入
+
     // 需要修改的数据库信息,登录名,密码,库名
     string user = "root";
     string passwd = "123456";
