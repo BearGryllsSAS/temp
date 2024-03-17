@@ -511,7 +511,7 @@ void chat_conn::logout()
     onlineUsersId.erase(this->user_id);   // 用户信息中将其标记为离线状态
     m_lock.unlock();     
 
-    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn:::m_user_count);
+    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn:::m_user_count - 1);
     sprintf(this->buf, "(%s) %s\n>>>", this->usr_name, str);
     ev->len = strlen(ev->buf);
     cb_write();                  // 手动调用向其他用户发送XXX用户登出的信息
