@@ -463,7 +463,7 @@ void chat_conn::cb_read()
     char str[BUFSIZ],str2[1024];
     myevent_s *ev = (myevent_s *) arg;
     // int ret = read(cfd, str, sizeof str);
-    if(this->len <= 0)
+    if(this->len <= 0)    //这种判断应该是在读数据中做的
     {
         logout(this->fd, ev);
         close_cfd(this->fd, ev);
