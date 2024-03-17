@@ -182,6 +182,8 @@ void server::adjust_timer(util_timer *timer)
 
 void server::deal_timer(util_timer *timer, int sockfd)
 {
+    //这个函数内部要根据相应的回调函数进行错误处理
+
     timer->cb_func(&users_timer[sockfd]);
     if (timer)
     {
