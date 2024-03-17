@@ -1,4 +1,4 @@
-#include "chat_conn.h"
+h#include "chat_conn.h"
 #include "../server.h"
 
 #include <vector>
@@ -479,8 +479,8 @@ void chat_conn::cb_read()
     //不确定是否否要用
     memset(this->buf, '\0', sizeof(this->buf));
     
+    //将来这一步要录入日志文件中
     sprintf(str2, "from client fd: %d receive data is :", cfd);
-    //这里好像有点错误
     //if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
     write(STDOUT_FILENO, str, ret);    // 将客户端发来的数据在服务器端进行打印
 
