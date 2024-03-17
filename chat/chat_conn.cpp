@@ -481,7 +481,7 @@ void chat_conn::cb_read()
     
     //将来这一步要录入日志文件中
     sprintf(str2, "from client fd: %d receive data is :", cfd);
-    //if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
+    if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
     write(STDOUT_FILENO, str, ret);    // 将客户端发来的数据在服务器端进行打印
 
     sprintf(this->buf, "(%s):%s\n>>>", this->usr_name, str);   // 格式化客户端发来的数据 --- 数据处理
