@@ -19,11 +19,11 @@ const int MAX_FD = 65536;                   // 最大文件描述符
 const int MAX_EVENT_NUMBER = 10000;         // 最大事件数
 const int TIMESLOT = 5;                     // 最小超时单位
 
-class server
+class Server
 {
 public:
-    server();
-    ~server();
+    Server();
+    ~Server();
 
     void init(int port , string user, string passWord, string databaseName,
               int log_write , int opt_linger, int trigmode, int sql_num,
@@ -63,7 +63,7 @@ public:
     int m_sql_num;
 
     // 线程池相关
-    threadpool<http_conn> *m_pool;
+    threadpool<chat_conn> *m_pool;
     int m_thread_num;
 
     // epoll_event相关

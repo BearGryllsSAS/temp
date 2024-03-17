@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     Config config;
     config.parse_arg(argc, argv);
 
-    WebServer server;
+    Server server;
 
     // 初始化
     server.init(config.PORT, user, passwd, databasename, config.LOGWrite, 

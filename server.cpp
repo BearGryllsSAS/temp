@@ -1,6 +1,6 @@
-#include "server.h"
+#include "Server.h"
 
-server::server()
+Server::Server()
 {
     // http_conn类对象
     users = new chat_conn[MAX_FD];
@@ -9,7 +9,7 @@ server::server()
     users_timer = new client_data[MAX_FD];
 }
 
-server::~server()
+Server::~Server()
 {
     close(m_epollfd);
     close(m_listenfd);
@@ -20,7 +20,7 @@ server::~server()
     delete m_pool;
 }
 
-void server::init(int port, string user, string passWord, string databaseName, int log_write, 
+void Server::init(int port, string user, string passWord, string databaseName, int log_write, 
                      int opt_linger, int trigmode, int sql_num, int thread_num, int close_log, int actor_model)
 {
     m_port = port;
@@ -36,7 +36,7 @@ void server::init(int port, string user, string passWord, string databaseName, i
     m_actormodel = actor_model;
 }
 
-void server::trig_mode()
+void Server::trig_mode()
 {
     //LT + LT
     if (0 == m_TRIGMode)
@@ -64,7 +64,7 @@ void server::trig_mode()
     }
 }
 
-void server::log_write()
+void Server::log_write()
 {
     if (0 == m_close_log)
     {
@@ -76,7 +76,7 @@ void server::log_write()
     }
 }
 
-void server::sql_pool()
+void Server::sql_pool()
 {
     // 初始化数据库连接池
     m_connPool = connection_pool::GetInstance();
@@ -86,13 +86,13 @@ void server::sql_pool()
     users->initmysql_result(m_connPool);
 }
 
-void server::thread_pool()
+void Server::thread_pool()
 {
     // 线程池
     m_pool = new threadpool<chat_conn>(m_actormodel, m_connPool, m_thread_num);
 }
 
-void server::eventListen()
+void Server::eventListen()
 {
     // 网络编程基础步骤
     m_listenfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -150,7 +150,7 @@ void server::eventListen()
     Utils::u_epollfd = m_epollfd;
 }
 
-void server::timer(int connfd, struct sockaddr_in client_address)
+void server::timer(int connifd, struct sockaddr_in client_address)
 {
     //init内部要设置回调函数
 
@@ -171,7 +171,7 @@ void server::timer(int connfd, struct sockaddr_in client_address)
 
 // 若有数据传输，则将定时器往后延迟3个单位
 // 并对新的定时器在链表上的位置进行调整
-void server::adjust_timer(util_timer *timer)
+void Server::adjust_timer(util_timer *timer)
 {
     time_t cur = time(NULL);
     timer->expire = cur + 3 * TIMESLOT;
@@ -180,7 +180,7 @@ void server::adjust_timer(util_timer *timer)
     LOG_INFO("%s", "adjust timer once");
 }
 
-void server::deal_timer(util_timer *timer, int sockfd)
+void server::deal_timer(util_timer *timer, int sockifd)
 {
     //这个函数内部要根据相应的回调函数进行错误处理
     if(users[sockfd].log_step == 3) users[sockfd].logout();
@@ -194,7 +194,7 @@ void server::deal_timer(util_timer *timer, int sockfd)
     LOG_INFO("close fd %d", users_timer[sockfd].sockfd);
 }
 
-bool server::dealclientdata()
+bool Server::dealclientdata()
 {
     struct sockaddr_in client_address;
     socklen_t client_addrlength = sizeof(client_address);
@@ -208,8 +208,8 @@ bool server::dealclientdata()
         }
         if (http_conn::m_user_count >= MAX_FD)
         {
-            utils.show_error(connfd, "Internal server busy");
-            LOG_ERROR("%s", "Internal server busy");
+            utils.show_error(connfd, "Internal Server busy");
+            LOG_ERROR("%s", "Internal Server busy");
             return false;
         }
         timer(connfd, client_address);
@@ -227,8 +227,8 @@ bool server::dealclientdata()
             }
             if (http_conn::m_user_count >= MAX_FD)
             {
-                utils.show_error(connfd, "Internal server busy");
-                LOG_ERROR("%s", "Internal server busy");
+                utils.show_error(connfd, "Internal Server busy");
+                LOG_ERROR("%s", "Internal Server busy");
                 break;
             }
             timer(connfd, client_address);
@@ -238,7 +238,7 @@ bool server::dealclientdata()
     return true;
 }
 
-bool server::dealwithsignal(bool &timeout, bool &stop_server)
+bool Server::dealwithsignal(bool &timeout, bool &stop_Server)
 {
     int ret = 0;
     int sig;
@@ -265,7 +265,7 @@ bool server::dealwithsignal(bool &timeout, bool &stop_server)
             }
             case SIGTERM:
             {
-                stop_server = true;
+                stop_Server = true;
                 break;
             }
             }
@@ -274,7 +274,7 @@ bool server::dealwithsignal(bool &timeout, bool &stop_server)
     return true;
 }
 
-void server::dealwithread(int sockfd)
+void server::dealwithread(int sockifd)
 {
     util_timer *timer = users_timer[sockfd].timer;
 
@@ -325,7 +325,7 @@ void server::dealwithread(int sockfd)
     }
 }
 
-void server::dealwithwrite(int sockfd)
+void server::dealwithwrite(int sockifd)
 {
     util_timer *timer = users_timer[sockfd].timer;
     // reactor
@@ -371,12 +371,12 @@ void server::dealwithwrite(int sockfd)
     }
 }
 
-void server::eventLoop()
+void Server::eventLoop()
 {
     bool timeout = false;
-    bool stop_server = false;
+    bool stop_server = ifalse;
 
-    while (!stop_server)
+    while (!stop_Server)
     {
         int number = epoll_wait(m_epollfd, events, MAX_EVENT_NUMBER, -1);
         if (number < 0 && errno != EINTR)
@@ -405,7 +405,7 @@ void server::eventLoop()
             // 处理信号
             else if ((sockfd == m_pipefd[0]) && (events[i].events & EPOLLIN))
             {
-                bool flag = dealwithsignal(timeout, stop_server);
+                bool flag = dealwithsignal(timeout, stop_Server);
                 if (false == flag)
                     LOG_ERROR("%s", "dealclientdata failure");
             }

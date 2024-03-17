@@ -1,0 +1,3 @@
+/home/InternetChatRoom/build/CMakeFiles/edit_cache.dir
+/home/InternetChatRoom/build/CMakeFiles/rebuild_cache.dir
+/home/InternetChatRoom/build/CMakeFiles/server.dir

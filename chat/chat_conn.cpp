@@ -1,8 +1,9 @@
 #include "chat_conn.h"
 #include "../server.h"
 
+#include <algorithm>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <mysql/mysql.h>
 #include <fstream>
 
@@ -13,9 +14,9 @@
 //服务器发送数据的len的判断也是在外面进行处理。同上
 
 locker m_lock;
-map<string, pair<string, string>> users;  //通过id映射用户名和密码
+map<string, pair<string, string> > users;  //通过id映射用户名和密码
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
-unordered_set<int> onlineUsersId   //记录在线用户，存放的是用户id。方便login函数判断
+set<int> onlineUsersId;   //记录在线用户，存放的是用户id。方便login函数判断
 
 int chat_conn::m_user_count = 0;
 int chat_conn::m_epollfd = -1;
@@ -68,7 +69,7 @@ void addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
     epoll_event event;
     event.data.fd = fd;
     
-    this->status = 1        //是否在监听红黑树上
+    // this->status = 1;        //是否在监听红黑树上
 
     if (1 == TRIGMode)
         event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
@@ -139,7 +140,6 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
     m_user_count++;
 
     //当浏览器出现连接重置时，可能是网站根目录出错或http响应格式出错或者访问的文件中内容完全为空
-    doc_root = root;
     m_TRIGMode = TRIGMode;
     m_close_log = close_log;
 
@@ -153,7 +153,7 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
 
 
     // 发送信息提示用户
-    write(cfd, ms1, sizeof ms1);
+    write(this->fd, ms1, sizeof ms1);
 }
 
 //初始化新接受的连接
@@ -161,34 +161,27 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
 void chat_conn::init()
 {
     mysql = NULL;
-    bytes_to_send = 0;
-    bytes_have_send = 0;
-    m_check_state = CHECK_STATE_REQUESTLINE;
-    m_linger = false;
-    m_method = GET;
-    m_url = 0;
-    m_version = 0;
-    m_content_length = 0;
-    m_host = 0;
-    m_start_line = 0;
-    m_checked_idx = 0;
-    m_read_idx = 0;
-    m_write_idx = 0;
-    cgi = 0;
-    m_state = 0;
+    // m_linger = false;
+    // m_url = 0;
+    // m_version = 0;
+    // m_content_length = 0;
+    // m_host = 0;
+    // m_start_line = 0;
+    // m_checked_idx = 0;
+    // m_read_idx = 0;
+    // m_write_idx = 0;
+    // m_state = 0;
     timer_flag = 0;
     improv = 0;
 
-    memset(m_read_buf, '\0', READ_BUFFER_SIZE);
-    memset(m_write_buf, '\0', WRITE_BUFFER_SIZE);
-    memset(m_real_file, '\0', FILENAME_LEN);
+    memset(this->buf, '\0', BUFFER_SIZE);
 }
 
 //循环读取客户数据，直到无数据可读或对方关闭连接
 //非阻塞ET工作模式下，需要一次性将数据读完
 bool chat_conn::read_once()
 {
-    if (m_read_idx >= READ_BUFFER_SIZE)
+    if (m_read_idx >= BUFFER_SIZE)
     {
         return false;
     }
@@ -248,15 +241,15 @@ void chat_conn::login_menu()
     if(this->buf[0] == '1')           // 匿名用户登陆
     {
         sprintf(this->usr_name, "匿名用户 %ld", time(NULL)) ;    // 设置匿名登陆的用户名
-        strcpy(this->uusr_id, "00000");                           // 所有匿名用户的账号为00000
+        strcpy(this->usr_id, "00000");                           // 所有匿名用户的账号为00000
         // 加入到聊天回调然后监听 
         this->log_step = 3;       // 表示为已登录状态
 
         // list_push(cfd);         // 加入当前的在线列表
-        onlineUsers.emplace_back(this->fd);
-        chat_conn:::m_user_count++;        // 在线人数加一
+        onlineUsers.push_back(this->fd);
+        chat_conn::m_user_count++;        // 在线人数加一
 
-        sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
+        sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn::m_user_count);
         this->len = strlen(this->buf);
         char s[] = "----------------------epoll聊天室测试版--------------------\n";
         write(this->fd, s, sizeof s);
@@ -337,12 +330,12 @@ void chat_conn::login()
             onlineUsers.emplace_back(this->fd);         
 
             // Users[id].st = 1;
-            onlineUsersId.insert(this->user_id);
+            onlineUsersId.insert(this->usr_id);
 
             //在线人数加一
-            chat_conn:::m_user_count++;
+            chat_conn::m_user_count++;
             
-            sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn:::m_user_count);
+            sprintf(this->buf,">               用户: %s  已登录,当前在线人数为 %d          \n\n>>>", this->usr_name, chat_conn::m_user_count);
             this->len = strlen(this->buf);
             char s[] = "----------------------epoll聊天室测试版--------------------\n";
             write(this->fd, s, sizeof s);
@@ -418,28 +411,28 @@ void chat_conn::register_id()
 void chat_conn::get_uid()
 {
     char str[10];
-    sprintf(str, "%05d", chat_conn:::m_user_count + 1);   
+    sprintf(str, "%05d", chat_conn::m_user_count + 1);   
     strcpy(this->usr_id, str); 
 
     //将注册的用户信息加入users中 将注册的用户信息加入数据库中
     char *sql_insert = (char *)malloc(sizeof(char) * 200);
     strcpy(sql_insert, "INSERT INTO user(userid, username, passwd) VALUES(");
     strcat(sql_insert, "'");
-    strcat(sql_insert, this->user_id);
+    strcat(sql_insert, this->usr_id);
     strcat(sql_insert, "', '");
-    strcat(sql_insert, this->user_name);
+    strcat(sql_insert, this->usr_name);
     strcat(sql_insert, "', '");
-    strcat(sql_insert, this_user_key);
+    strcat(sql_insert, this->usr_key);
     strcat(sql_insert, "')");
    
     m_lock.lock();
     int res = mysql_query(mysql, sql_insert);
-    users[this->user_id] = {this->user_name, this_user_key};
+    users[this->usr_id] = {this->usr_name, this->usr_key};
     m_lock.unlock();
 }
 
 // 写事件 ---> 向当前在线用户发送信息
-void chat_conn::lcb_write()
+void chat_conn::cb_write()
 {
     for(const auto& onlinefd : onlineUsers)             // 遍历当前的在线链表, 向在线用户发送
     {
@@ -471,9 +464,9 @@ void chat_conn::cb_read()
     memset(this->buf, '\0', sizeof(this->buf));
     
     //将来这一步要录入日志文件中
-    sprintf(str2, "from client fd: %d receive data is :", cfd);
+    sprintf(str2, "from client fd: %d receive data is :", this->fd);
     if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
-    write(STDOUT_FILENO, str, ret);    // 将客户端发来的数据在服务器端进行打印
+    write(STDOUT_FILENO, str, strlen(str));    // 将客户端发来的数据在服务器端进行打印
 
     sprintf(this->buf, "(%s):%s\n>>>", this->usr_name, str);   // 格式化客户端发来的数据 --- 数据处理
     this->len = strlen(this->buf);
@@ -495,13 +488,14 @@ void chat_conn::logout()
     this->log_step = 0;   // 标记为登出                    
    
     m_lock.lock();   //处理逻辑待定
-    onlineUsers.erase(std::remove(onlineUsers.begin(), onlineUsers.end(), this->fd), onlineUsers.end());                  // 从在线列表中删除                      
-    onlineUsersId.erase(this->user_id);   // 用户信息中将其标记为离线状态
+    onlineUsers.erase(std::remove(onlineUsers.begin(), onlineUsers.end(), stoi(this->fd)), onlineUsers.end());                  // 从在线列表中删除                      
+    onlineUsersId.erase(this->usr_id);   // 用户信息中将其标记为离线状态
+    
     m_lock.unlock();     
 
-    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn:::m_user_count - 1);
+    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn::m_user_count - 1);
     sprintf(this->buf, "(%s) %s\n>>>", this->usr_name, str);
-    ev->len = strlen(ev->buf);
+    this->len = strlen(this->buf);
     cb_write();                  // 手动调用向其他用户发送XXX用户登出的信息
 }
 
