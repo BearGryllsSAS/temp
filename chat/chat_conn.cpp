@@ -1,4 +1,4 @@
-h#include "chat_conn.h"
+#include "chat_conn.h"
 #include "../server.h"
 
 #include <vector>
@@ -501,18 +501,20 @@ void chat_conn::cb_read()
 
 // 登出操作 ---> 必须是登陆上之后进行登出才调用
 //这里面要统一在timer那里处理，因为数据是在外面读取的
-void chat_conn::logout(int cfd, void *arg)
-{
-    myevent_s *ev = (myevent_s*)arg;         
-    char str[1024];                         
-    list_del(cfd);                     // 从在线列表中删除
-    ev->log_step = 0;                  // 标记为登出
+void chat_conn::logout()
+{        
+    char str[1024];  
+    this->log_step = 0;   // 标记为登出                    
+   
+    m_lock.lock();   //处理逻辑待定
+    list_del(cfd);                     // 从在线列表中删除                      
     Users[atoi(ev->um.usr_id)].st = 0; // 用户信息中将其标记为离线状态
+    m_lock.unlock();     
 
-    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", online_num);
-    sprintf(ev->buf, "(%s) %s\n>>>", ev->um.usr_name, str);
+    sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn:::m_user_count);
+    sprintf(this->buf, "(%s) %s\n>>>", this->usr_name, str);
     ev->len = strlen(ev->buf);
-    cb_write(cfd, ev);                  // 手动调用向其他用户发送XXX用户登出的信息
+    cb_write();                  // 手动调用向其他用户发送XXX用户登出的信息
 }
 
 
