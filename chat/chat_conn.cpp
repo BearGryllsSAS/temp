@@ -464,8 +464,7 @@ void chat_conn::lcb_write()
 // 读事件 -----> 服务器接收的客户端发来的信息
 void chat_conn::cb_read()
 {
-    char str[BUFSIZ];
-    myevent_s *ev = (myevent_s *) arg;
+    char str[BUFSIZ], str2[1024];
     // int ret = read(cfd, str, sizeof str);
     if(this->len <= 0)    //这种判断应该是在读数据中做的
     {
@@ -480,7 +479,7 @@ void chat_conn::cb_read()
     //不确定是否否要用
     memset(this->buf, '\0', sizeof(this->buf));
     
-    sprintf(this->buf, "from client fd: %d receive data is :", cfd);
+    sprintf(str2, "from client fd: %d receive data is :", cfd);
     //这里好像有点错误
     //if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
     write(STDOUT_FILENO, str, ret);    // 将客户端发来的数据在服务器端进行打印
