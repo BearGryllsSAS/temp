@@ -507,8 +507,8 @@ void chat_conn::logout()
     this->log_step = 0;   // 标记为登出                    
    
     m_lock.lock();   //处理逻辑待定
-    list_del(cfd);                     // 从在线列表中删除                      
-    Users[atoi(ev->um.usr_id)].st = 0; // 用户信息中将其标记为离线状态
+    onlineUsers.erase(std::remove(onlineUsers.begin(), onlineUsers.end(), this->fd), onlineUsers.end());                  // 从在线列表中删除                      
+    onlineUsersId.erase(this->user_id);   // 用户信息中将其标记为离线状态
     m_lock.unlock();     
 
     sprintf(str, "已退出聊天室, 当前在线人数为%d\n", chat_conn:::m_user_count);
