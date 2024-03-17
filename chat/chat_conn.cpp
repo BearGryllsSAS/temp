@@ -455,6 +455,8 @@ void chat_conn::lcb_write()
 
     if(this->log_step == 3) write(this->fd, "\n>>>", 4);   // 界面的优化,与主要逻辑无关 
 
+    if(this->log_step = 0) return;   // 状态为登出
+
     // 执行完一次事件之后--> 从树上摘下 ---> 重新设定要监听事件 ---> 重新挂上树监听
     // event_del(g_efd, ev);
     // event_set(ev, cfd, EPOLLIN | EPOLLET, cb_read, ev);
