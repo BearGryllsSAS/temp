@@ -497,6 +497,7 @@ void chat_conn::cb_read()
 }
 
 // 登出操作 ---> 必须是登陆上之后进行登出才调用
+//这里面要统一在timer那里处理，因为数据是在外面读取的
 void chat_conn::logout(int cfd, void *arg)
 {
     myevent_s *ev = (myevent_s*)arg;         
