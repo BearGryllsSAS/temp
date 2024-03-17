@@ -152,6 +152,8 @@ void server::eventListen()
 
 void server::timer(int connfd, struct sockaddr_in client_address)
 {
+    //init内部要设置回调函数
+
     users[connfd].init(connfd, client_address, m_root, m_CONNTrigmode, m_close_log, m_user, m_passWord, m_databaseName);
 
     // 初始化client_data数据
