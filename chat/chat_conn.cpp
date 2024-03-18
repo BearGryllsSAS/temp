@@ -111,7 +111,7 @@ void chat_conn::close_conn(bool real_close)
         printf("close %d\n", m_sockfd);
         removefd(m_epollfd, m_sockfd);
 
-        this->status = 0;        //是否在监听红黑树上
+        //this->status = 0;        //是否在监听红黑树上
 
         // 原来的打印错误信息的逻辑，以后更改为日志操作
         // char str[BUFSIZ];
