@@ -308,7 +308,7 @@ void chat_conn::login()
             write(this->fd, s, strlen(s));
             return;
         }
-        if(onlineUsersId.contains(id))                      
+        if(onlineUsersId.find(id) != onlineUsersId.end())                      
         {
             sprintf(s, "!用户UID:%s 已登陆\n请重新输入账号UID:", this->buf);
             write(this->fd, s, strlen(s));
