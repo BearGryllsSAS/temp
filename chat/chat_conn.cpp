@@ -14,9 +14,9 @@
 //服务器发送数据的len的判断也是在外面进行处理。同上
 
 locker m_lock;
-map<string, pair<string, string> > users;  //通过id映射用户名和密码
+map<char*, pair<char*, char*> > users;  //通过id映射用户名和密码
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
-set<int> onlineUsersId;   //记录在线用户，存放的是用户id。方便login函数判断
+set<char*> onlineUsersId;   //记录在线用户，存放的是用户id。方便login函数判断
 
 int chat_conn::m_user_count = 0;
 int chat_conn::m_epollfd = -1;
